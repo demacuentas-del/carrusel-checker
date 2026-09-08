@@ -39,8 +39,14 @@ async function writeDb(db: Db): Promise<void> {
     return;
   }
 
-  fs.mkdirSync(path.dirname(LOCAL_DB_PATH), { recursive: true });
-  fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(db, null, 2));
+  try {
+    fs.mkdirSync(path.dirname(LOCAL_DB_PATH), { recursive: true });
+    fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(db, null, 2));
+  } catch {
+    throw new Error(
+      "No se pudo guardar (el disco del servidor es de solo lectura en producción). Conectá Vercel Blob en Storage → Create Database → Blob y volvé a desplegar."
+    );
+  }
 }
 
 export async function saveImage(
@@ -62,10 +68,16 @@ export async function saveImage(
     return url;
   }
 
-  const dir = path.join(LOCAL_UPLOADS_DIR, reviewId);
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, `${slideId}.png`), buffer);
-  return `/uploads/${reviewId}/${slideId}.png`;
+  try {
+    const dir = path.join(LOCAL_UPLOADS_DIR, reviewId);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, `${slideId}.png`), buffer);
+    return `/uploads/${reviewId}/${slideId}.png`;
+  } catch {
+    throw new Error(
+      "No se pudo guardar la imagen (el disco del servidor es de solo lectura en producción). Conectá Vercel Blob en Storage → Create Database → Blob y volvé a desplegar."
+    );
+  }
 }
 
 export async function listReviews(): Promise<Review[]> {
