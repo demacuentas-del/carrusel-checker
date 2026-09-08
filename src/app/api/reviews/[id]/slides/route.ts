@@ -34,28 +34,31 @@ export async function POST(
 
     const imageUrl = await saveImage(id, slideId, buffer, file.type);
 
-    const pendingSlide: Slide = {
+    const baseSlide: Omit<Slide, "status"> = {
       id: slideId,
       filename: file.name,
       imageUrl,
-      status: "analizando",
       createdAt: new Date().toISOString(),
     };
 
-    await updateReview(id, (r) => ({ ...r, slides: [...r.slides, pendingSlide] }));
-
+    // OCR.space responde en 1-2s, así que analizamos antes de tocar la
+    // base de datos y hacemos un único updateReview al final. Antes había
+    // dos escrituras separadas (placa "analizando" y luego el resultado),
+    // y cada updateReview vuelve a leer la base entera desde Vercel Blob:
+    // esa segunda lectura podía llegar antes de que la primera escritura
+    // se propagara, pisándola y perdiendo la placa recién subida.
     let finalSlide: Slide;
     try {
       const result = await analyzeSlide(review.brief, buffer);
       finalSlide = {
-        ...pendingSlide,
+        ...baseSlide,
         status: "listo",
         transcripcion: result.transcripcion,
         errores: result.errores,
       };
     } catch (err) {
       finalSlide = {
-        ...pendingSlide,
+        ...baseSlide,
         status: "error",
         errorMensaje: err instanceof Error ? err.message : "Error desconocido al analizar la imagen.",
       };
@@ -63,7 +66,7 @@ export async function POST(
 
     const updated = await updateReview(id, (r) => ({
       ...r,
-      slides: r.slides.map((s) => (s.id === slideId ? finalSlide : s)),
+      slides: [...r.slides, finalSlide],
     }));
 
     return NextResponse.json({ review: updated, slide: finalSlide });
