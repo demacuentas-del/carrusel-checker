@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@tesseract.js-data/spa": "^1.0.0",
     "@vercel/blob": "^2.8.0",
     "dictionary-es": "^4.0.0",
     "nanoid": "^6.0.1",
@@ -17,7 +16,7 @@
     "nspell": "^2.1.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "tesseract.js": "^7.0.0"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
