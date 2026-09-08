@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     "/api/reviews/*/slides": [
       "./node_modules/tesseract.js/src/worker-script/**/*",
       "./node_modules/tesseract.js-core/**/*",
+      "./node_modules/@tesseract.js-data/spa/4.0.0_best_int/**/*",
     ],
   },
   images: {

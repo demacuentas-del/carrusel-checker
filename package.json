@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tesseract.js-data/spa": "^1.0.0",
     "@vercel/blob": "^2.8.0",
     "dictionary-es": "^4.0.0",
     "nanoid": "^6.0.1",
